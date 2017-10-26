@@ -8,9 +8,6 @@
     "url": "https://github.com/MansystemsCorp/refkit"
   },
   "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/MansystemsCorp/refkit"
-  },
   "devDependencies": {
     "grunt": "1.0.1",
     "grunt-contrib-clean": "^1.0.0",
