@@ -6,11 +6,11 @@
 define([
     "dojo/_base/declare", "mxui/widget/_WidgetBase", "dijit/_TemplatedMixin",
     "mxui/dom", "dojo/dom", "dojo/_base/array", "dojo/_base/lang", "dojo/dom-construct", "dojo/dom-class",
-    "mendix/lib/MxContext", "dijit/form/ComboBox",
+    "dojo/on","mendix/lib/MxContext", "dijit/form/ComboBox",
     "refkit/lib/XPathSource",
     "refkit/lib/jquery",
     "dojo/text!refkit/templates/InputReferenceSelector.html"
-], function (declare, _WidgetBase, _TemplatedMixin, dom, dojoDom, dojoArray, dojoLang, dojoConstruct, domClass, MxContext, ComboBox, XPathSource, _jQuery, template) {
+], function (declare, _WidgetBase, _TemplatedMixin, dom, dojoDom, dojoArray, dojoLang, dojoConstruct, domClass, on, MxContext, ComboBox, XPathSource, _jQuery, template) {
 
     "use strict";
 
@@ -146,7 +146,7 @@ define([
                 }
 
             this.domNode.appendChild(this.comboBox.domNode);
-            dojo.connect(this.comboBox, "onChange", this.valueChange.bind(this));
+            on(this.comboBox, "change", this.valueChange.bind(this));
             this.comboBox.domNode.removeAttribute("tabIndex");
 
             if (callback) {
@@ -260,9 +260,13 @@ define([
                             entity: this.referredEntity,
                             callback : function (obj) {
                                 obj.set(this.objattribute, value);
-                                obj.save({ callback : function () {}});
+                                mx.data.commit({
+                                    mxobj: obj,
+                                    callback : function () {}
+                                });
                                 this.sourceObject.addReference(this.objreference, obj.getGuid());
-                                this.sourceObject.save({
+                                mx.data.commit({
+                                    mxobj: this.sourceObject,
                                     callback : function () {
                                         this.ignoreChange = false;
                                         this.executeMF(this.notfoundmf);
@@ -304,9 +308,7 @@ define([
 
                 mx.data.action({
                     params: params,
-                    store: {
-                        caller: this.mxform
-                    },
+                    origin: this.mxform,
                     callback   : dojoLang.hitch(this, function() {
                         logger.debug(this.id + ".executeMF.OK");
                     }),
